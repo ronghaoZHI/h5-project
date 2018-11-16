@@ -1,6 +1,6 @@
 {
   "name": "bsc-h5-project",
-  "version": "0.1",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "start": "vue-cli-service serve",
