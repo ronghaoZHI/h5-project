@@ -1,7 +1,7 @@
 {
   "name": "h5-project",
-  "version": "1.0.0",
-  "description": "A Vue.js project",
+  "version": "0.1.0",
+  "description": "A project",
   "author": "ronghaoZHI <895576961@qq.com>",
   "private": true,
   "scripts": {
