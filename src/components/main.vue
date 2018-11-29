@@ -1,9 +1,14 @@
 <template>
   <div id="content-wrap">
     <div v-show="showCanvas" id="canvas-wrap" ref="canvas-wrap">
+      <form v-show="showLogin" class="login" v-on:submit.prevent="submit">
+        <div class="from-item"><span class="">账号：</span><input class="name" v-model="loginInfo.username" type="text"></div>
+        <div class="from-item"><span>密码：</span><input class="password" v-model="loginInfo.password" type="text"></div>
+        <div class="from-item"><button type="submit" class="submit">登录</button></div>
+      </form>
       <button class="canvasBtn" @click="hideCanvas">i am canvas 点我消失</button>
-      <canvas id="canvas1">your divice donot suport canvas</canvas>
-      <canvas id="canvas2">222</canvas>
+      <canvas id="canvas1" ref="canvas1">your divice donot suport canvas</canvas>
+      <canvas id="canvas2" ref="canvas2">222</canvas>
     </div>
     <div v-show="showSwiper" id="outer-swiper" ref="outer-swiper">
       <div v-show="showArrow" class="arrow" ref="arrow">^ ^ ^</div>
@@ -15,10 +20,12 @@
       </section>
       <section id="swiper3" ref="swiper3">
         <div><h1>333</h1></div>
+        <div><button @click="lookPhoto">查看图片集</button></div>
       </section>
     </div>
     <div id="content-end">
       <div>
+
         <p>end</p>
       </div>
     </div>
@@ -33,29 +40,45 @@ export default {
   created () {
   },
   mounted () {
-    this.init()
+    window.setTimeout(this.init(), 100)
+    window.setTimeout(this.initCanvas(), 100)
   },
   data () {
     return {
       msg: 'Welcome',
       ctx: {},
-      ctxDouble: {},
+      ctxD: {},
       swiper: {},
       showSwiper: true,
       showCanvas: true,
-      showArrow: false
+      showArrow: false,
+      showLogin: true,
+      screen: {
+        height: window.screen.availHeight,
+        width: window.screen.availWidth
+      },
+      loginInfo: {
+        username: '',
+        password: ''
+      }
     }
   },
   methods: {
     initCanvas () {
-      const ctx = this.$refs['canvas1'].getContext('2d')
-      if (!ctx) {
-        return null
+      let self = this
+      const canvas = this.$refs['canvas1']
+      const ctx2d = canvas.getContext('2d')
+      if (!ctx2d) {
+        return 0
       } else {
-        this.ctx = ctx
-        const img = new Image()
-        img.src = '@/assets/logo.png'
-        this.ctx.drawImage(img)
+        this.ctx = ctx2d
+        const img = new Image(200, 300)
+        canvas.height = this.screen.height
+        canvas.width = this.screen.width
+        img.src = '../assets/logo.png'
+        img.onload = function () {
+          self.ctx.drawImage(this, 0, 0)
+        }
       }
     },
     hideCanvas () {
@@ -89,13 +112,37 @@ export default {
       )
       slider.on('slideChange', (e) => {
         console.log(e)
-        e === (data.length - 1) && (this.showSwiper = false)
       })
       this.swiper = slider
-      try {
-        // this.$http.get('').then(() => {})
-      } catch (error) {
+    },
+    submit () {
+      let self = this
+      const data = {
+        username: this.loginInfo.username,
+        password: this.loginInfo.password
       }
+      try {
+        this.$http.post('https://nodejs.bscstorage.com/api/users/login', data).then(
+          (res) => {
+            this.setUserStorage(data)
+            console.log(data, res)
+            self.$router.push('/')
+          })
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    lookPhoto () {
+      console.log('click')
+      this.$router.push('/upload')
+    },
+    setUserStorage (data) {
+      window.localStorage.setItem('bsc-username', data.username)
+      window.localStorage.setItem('bsc-password', data.password)
+    },
+    removeUserStorage () {
+      window.localStorage.removeItem('bsc-username')
+      window.localStorage.removeItem('bsc-password')
     }
   }
 }
@@ -122,25 +169,52 @@ export default {
 #canvas-wrap {
   position: absolute;
   background: #fff;
-  z-index: 10;
+  z-index: 1;
+  .login {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    z-index: 2;
+    .from-item {
+      display: block;
+    }
+    span {
+      display: inline-block;
+      width: 100px;
+      height: 70px;
+    }
+    input {
+      border: #ccc 1px solid;
+      display: inline-block;
+      width: 300px;
+      height: 70px;
+    }
+    button {
+      display: block;
+      width: 200px;
+      height: 70px;
+      margin: 0 auto;
+    }
+  }
   .canvasBtn {
     position:fixed;
-    top:50%;
+    top:10%;
     left:20%;
     font-size:50px;
-    z-index: 20;
+    z-index: 2;
   }
   #canvas1, #canvas2 {
-    width: 100%;
-    height: 50%;
-    z-index: 10;
+    position: relative;
+    z-index: 1;
   }
 }
 #outer-swiper {
   .arrow {
     position: fixed;
     height: 50px;
-    z-index: 10;
+    z-index: 1;
     left: 50%;
     transform: translate(-50%, -50%);
     animation-name: arrow;

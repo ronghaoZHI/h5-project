@@ -53,7 +53,7 @@ module.exports = {
       },
       {
         test: /\.less$/,
-        
+        loader: 'less-loader',
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,

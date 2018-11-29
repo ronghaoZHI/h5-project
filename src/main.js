@@ -6,9 +6,12 @@ import router from './router'
 import axios from 'axios'
 
 Vue.config.productionTip = false
-let http = axios.create()
 
-Vue.prototype.$http = http
+Vue.prototype.$http = axios.create()
+
+router.beforeEach((from, to, next) => {
+  next()
+})
 
 /* eslint-disable no-new */
 new Vue({
